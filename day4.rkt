@@ -161,9 +161,9 @@ MXMXAXMASX")
      (count 0))
     (let ((i (match str "XMAS")))
           
-          (if (not i)
-              count
-              (loop (substring str (+ i 2)) (+ count 1))))))
+      (if (not i)
+          count
+          (loop (substring str (+ i 2)) (+ count 1))))))
 
 (define (count-xmasses-HB string)
   (let loop
@@ -171,9 +171,9 @@ MXMXAXMASX")
      (count 0))
     (let ((i (match str "SAMX")))
           
-          (if (not i)
-              count
-              (loop (substring str (+ i 2)) (+ count 1))))))
+      (if (not i)
+          count
+          (loop (substring str (+ i 2)) (+ count 1))))))
 
 (define (string-split str delimiter)
   (let loop ((s str) (parts '()))
@@ -249,6 +249,74 @@ MXMXAXMASX")
     
 ; part 2
 
-;;TODO
+(define (make-matrix string)
+  (let* ((lst (string-split string "\n"))
+         (x (length lst))
+         (y (string-length (car lst)))
+         (v (make-vector x 0)))
+    (let loop
+      ((i 0)
+       (list lst))
+      (if (= i x)
+          v
+          (begin
+            (vector-set! v i (string->vector (car list)))
+            (loop (+ i 1) (cdr list)))))))
 
-              
+(define (matrix-ref matrix x y)
+  (vector-ref (vector-ref matrix x) y))
+
+(define (matrix-set! matrix x y in)
+  (vector-set! (vector-ref matrix x) y in))
+
+(define result-matrix (make-matrix input-string))
+
+(define (get-submatrix matrix i j)
+  (let ((matrix-out (make-vector 3 0)))
+    (let loop
+      ((a 0))
+      (cond ((= a 3)
+             matrix-out)
+            (else
+             (vector-set! matrix-out a (vector
+                                        (matrix-ref matrix (+ i a) j)
+                                        (matrix-ref matrix (+ i a) (+ j 1))
+                                        (matrix-ref matrix (+ i a) (+ j 2))))
+             (loop (+ a 1))))))) 
+
+(define (check-submatrix matrix) ; returns 0 or 1 to add to the count
+  (cond ((not (eq? (matrix-ref matrix 1 1) #\A))
+         0)
+        ((and (eq? (matrix-ref matrix 0 0) #\S)
+              (eq? (matrix-ref matrix 2 2) #\M))
+         (cond ((and (eq? (matrix-ref matrix 0 2) #\M)
+                     (eq? (matrix-ref matrix 2 0) #\S)) 1)
+               ((and (eq? (matrix-ref matrix 0 2) #\S)
+                     (eq? (matrix-ref matrix 2 0) #\M)) 1)
+               (else 0)))
+        ((and (eq? (matrix-ref matrix 0 0) #\M)
+              (eq? (matrix-ref matrix 2 2) #\S))
+         (cond ((and (eq? (matrix-ref matrix 0 2) #\M)
+                     (eq? (matrix-ref matrix 2 0) #\S)) 1)
+               ((and (eq? (matrix-ref matrix 0 2) #\S)
+                     (eq? (matrix-ref matrix 2 0) #\M)) 1)
+               (else 0)))
+        (else 0)))
+
+(define (count-x matrix)
+  (let ((x (vector-length matrix))
+        (y (vector-length (vector-ref matrix 0))))
+    (let loop
+      ((i 0)
+       (j 0)
+       (count 0))
+      (cond ((= (+ i 2) x)
+             (loop 0 (+ j 1) count))
+            ((= (+ j 2) y)
+             count)
+            (else
+             (loop (+ i 1) j (+ count (check-submatrix (get-submatrix matrix i j)))))))))
+
+(define count-2 (count-x result-matrix))
+
+
