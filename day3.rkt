@@ -69,8 +69,7 @@ $who()why()/how()<mul(7,112)@how(842,109)%,mul(651,794))(when(){?/(!where()mul(4
           ((< do-i dont-i)
            (delete-dont-parts (string-append (substring str 0 do-i) (substring str (+ do-i 4)))))
           (else
-           (delete-dont-parts (string-append (substring str 0 dont-i) (substring str (+ do-i 4)))))
-           )))
+           (delete-dont-parts (string-append (substring str 0 dont-i) (substring str (+ do-i 4))))))))
 
 (define (find-all-valid2 input)
   (let loop
