@@ -1462,10 +1462,54 @@
         count
         (let ((current-lst (utils:string-split (car lst) ",")))
           (if (check-row? current-lst dict)
-           (loop (cdr lst) (+ count (find-middle current-lst)))
-           (loop (cdr lst) count))))))
+              (loop (cdr lst) (+ count (find-middle current-lst)))
+              (loop (cdr lst) count))))))
 
 (define count (count-middles lst-2 dict-1))
 
 ; part 2
-;; TODO
+
+(define (sort-row lst-in dict)
+  (let*
+      ((v (list->vector lst-in))
+       (l (vector-length v)))
+    (let loop
+      ((i 0)
+       (exclusions (dict:new = <)))
+      (if (= i l) v
+          (let ((element (if (number? (vector-ref v i)) (vector-ref v i) (string->number (vector-ref v i)))))
+            (let inner
+              ((vals (vector-ref dict element)))
+              (cond ((null? vals)
+                     (dict:insert! exclusions element i)
+                     (loop (+ i 1) exclusions))
+                    (else
+                     (let* ((element2 (car vals))
+                            (j (dict:find exclusions element2)))
+                       (if j
+                           (begin
+                             (vector-set! v j element)
+                             (vector-set! v i element2)
+                             (dict:insert! exclusions element2 i)                               
+                             (loop 0 (dict:new = <))
+                             )
+                           (inner (cdr vals))))))))))))
+
+
+(define (find-middle-v v)
+  (let* ((l (vector-length v))
+         (el (vector-ref v (quotient l 2))))
+    (if (number? el) el (string->number el))))
+
+(define (count-middles-2 lst-in dict)
+  (let loop
+    ((lst lst-in)
+     (count 0))
+    (if (null? lst)
+        count
+        (let* ((current-lst (utils:string-split (car lst) ","))
+               (sorted-v (sort-row current-lst dict)))          
+          (loop (cdr lst) (+ count (find-middle-v sorted-v)))))))
+
+(define count-2 (count-middles-2 lst-2 dict-1))
+(define count-3 (- count-2 count))
